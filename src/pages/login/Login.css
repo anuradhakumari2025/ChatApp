@@ -2,3 +2,16 @@
   background: url('/background.png') no-repeat;
   background-size: cover;
 }
+.loginForm{
+  padding: 20px 30px;
+  border-radius: 10px;
+}
+.loginForm input{
+  padding: 2px 14px;
+  border:  1px solid #c9c9c9;
+  outline-color: #077eff;
+
+}
+.loginForm button{
+  padding: 6px 0px;
+}
