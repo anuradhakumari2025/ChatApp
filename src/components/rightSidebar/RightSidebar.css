@@ -1,0 +1,39 @@
+.rs{
+  background:#001030;
+  
+}
+.rsProfile{
+  padding-top: 60px;
+  margin: auto;
+}
+.rsProfile h3{
+  margin: 5px 0px;
+}
+.rs hr{
+  border-color: #ffffff50;
+  margin: 15px 0px;
+}
+.rsMedia{
+  padding: 0px 15px;
+  font-size: 14px;
+}
+.rsMedia div{
+  max-height: 180px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  overflow-y: scroll;
+  gap: 5px;
+  margin-top: 5px;
+}
+.rsMedia img{
+  width: 60px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.rs button{
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 63px;
+}

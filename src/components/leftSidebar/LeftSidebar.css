@@ -1,0 +1,41 @@
+.lsTop{
+  padding: 20px;
+}
+.lsNav{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.lsSearch{
+  padding: 8px 8px;
+  margin-top: 20px;
+}
+.lsSearch input::placeholder{
+  color: #c8c8c8;
+}
+.friends img{
+  aspect-ratio: 1/1;
+}
+.friends{
+  padding: 10px 20px;
+}
+.friends:hover span{
+  color: white;
+}
+.lsNav .menu{
+  padding: 10px 0px;
+}
+.subMenu{
+  padding: 20px;
+
+}
+.subMenu hr{
+  height: 1px; 
+  border: none;
+  background: #a4a4a4;
+  margin: 8px 0px;
+}
+
+.menu:hover .subMenu{
+  display: block;
+}
