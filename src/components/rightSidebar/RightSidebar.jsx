@@ -1,6 +1,7 @@
 import React from "react";
 import "./RightSidebar.css";
 import assets from "../../assets/assets";
+import { logOut } from "../../services/authService";
 
 function RightSidebar() {
   return (
@@ -35,7 +36,7 @@ function RightSidebar() {
           <img src={assets.pic2} alt="" />
         </div>
       </div>
-      <button className="text-[13px] rounded-2xl cursor-pointer font-semibold  border-none bg-[#077eff]">
+      <button onClick={()=>logOut()} className="text-[13px] rounded-2xl cursor-pointer font-semibold  border-none bg-[#077eff]">
         Logout
       </button>
     </div>

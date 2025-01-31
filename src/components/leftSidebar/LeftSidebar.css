@@ -1,5 +1,5 @@
 .lsTop{
-  padding: 20px;
+  padding: 20px 20px;
 }
 .lsNav{
   display: flex;
@@ -27,7 +27,6 @@
 }
 .subMenu{
   padding: 20px;
-
 }
 .subMenu hr{
   height: 1px; 

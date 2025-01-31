@@ -1,0 +1,20 @@
+.profile{
+  background: url(./background.png) no-repeat;
+}
+.profileContainer button{
+  padding: 8px 35px;
+}
+.profilePic{
+  margin: 20px auto;
+}
+.profile form{
+  padding: 40px;
+}
+.profile input, .profile textarea{
+  padding: 2px 14px;
+  border:  1px solid #c9c9c9;
+  outline-color: #077eff;
+  min-width: 300px;
+  border:  1px solid #c9c9c9;
+
+}
