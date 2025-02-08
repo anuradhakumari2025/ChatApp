@@ -14,11 +14,11 @@ function Login() {
     e.preventDefault()
     if(currState === 'Sign Up'){
       signup(userName,email,password)
-      console.log(userName,email,password)
+      // console.log(userName,email,password)
     }
     else{
       login(email,password)
-      console.log(email,password)
+      // console.log(email,password)
     }
   }
   return (

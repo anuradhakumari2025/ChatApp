@@ -81,6 +81,7 @@ export const getCurrentUser = async () => {
     .select("*")
     .eq("id", user.id)
     .single();
+    // console.log(data)
   if (error) {
     console.error("Failed to fetch user data:", error.message);
     return null;
@@ -91,18 +92,47 @@ export const getCurrentUser = async () => {
 export const setupAuthListener = (setUser) => {
   // Listen for auth state changes
   const authListener = supabase.auth.onAuthStateChange((event, session) => {
-    // console.log('Auth event:', event);  // e.g., 'SIGNED_IN', 'SIGNED_OUT'
-    // console.log('Session:', session);   // User session data
-
     if (event === 'SIGNED_IN') {
       // console.log('User signed in:', session.user);
       setUser(session.user);  // Update the user state in your app
     } else if (event === 'SIGNED_OUT') {
-      // console.log('User signed out');
       setUser(null);  // Set user state to null
     }
   });
-
   // Return the unsubscribe function directly
   return authListener.unsubscribe;
+};
+
+// Update user's lastSeen field
+export const updateUserLastSeen = async (userId) => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ lastSeen: new Date().toLocaleString() })
+      .eq('id', userId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Failed to update lastSeen:", error.message);
+    toast.error(error.message);
+  }
+};
+
+export const updateUserProfile = async (user) => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({
+        name: user.name,
+        bio: user.bio,
+        avatar: user.avatar,
+      })
+      .eq('id', user.id);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Profile update failed:", error.message);
+    return false;
+  }
 };
