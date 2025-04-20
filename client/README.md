@@ -69,7 +69,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 Contact
 For any questions or feedback, please contact:
 
-- **Name**: Your Name
+- **Name**: Anuradha Kumari
 - **Email**: krianuradha4321@gmail.com
 - **GitHub**: anuradhakumari2025
 
