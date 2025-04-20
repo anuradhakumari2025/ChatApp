@@ -1,0 +1,7 @@
+export const orange = "#ea7070"
+export const grayColor = "rgba(180, 180, 180, 0.4)"
+export const blue = "#2694ab"
+export const matBlack = "rgba(0,0,0,0.8)"
+export const bgGradient = "linear-gradient(rgb(255 255 209), rgb(249 159 159))"
+export const purple = "rgb(110, 42, 199)"
+export const purpleLight = "rgba(79, 39, 133, 0.42)"
