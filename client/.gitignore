@@ -28,5 +28,3 @@ dist-ssr
 /public/*.png
 /public/*.jpg
 /public/*.jpeg
-/public/*.gif
-/public/*.svg

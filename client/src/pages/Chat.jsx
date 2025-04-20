@@ -32,7 +32,6 @@ const Chat = () => {
         bgcolor={grayColor}          // Custom background color
         height={"90%"}               // Takes up 90% of the parent height
         sx={{
-          overflowY: "hidden",       // Initially hidden (possibly for animation or performance)
           overflowY: "auto",         // Enables vertical scroll for messages
         }}
       >
