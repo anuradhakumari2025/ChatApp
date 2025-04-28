@@ -5,6 +5,7 @@ import connectDB from "./configs/mongodb.js";
 import dotenv from "dotenv";
 import chatRouter from "./routes/Chat.route.js";
 import { createUser } from "./seeders/UserSeeder.js";
+import { createMessages } from "./seeders/MessageSeeder.js";
 dotenv.config();
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(cookieParser())
 
 await connectDB()
 // createUser(10)
+// createMessages(10)
 
 app.get("/", (req, res) => {
   res.send("Good Day!");

@@ -7,11 +7,16 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    creator: {
+    chat: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chat",
       required: true,
     },
+    // creator: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Chat",
+    //   required: true,
+    // },
     attachments: [
       {
         public_id: {

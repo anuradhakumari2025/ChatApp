@@ -1,8 +1,10 @@
 import {faker} from "@faker-js/faker"
 import User from "../models/User.js"
-const createUser = async(numUsers)=>{
+
+export const createUser = async(numUsers)=>{
   try {
     const userPromise = []
+
     for(let i = 0;i<numUsers;i++){
       const tempUser = User.create({
         name:faker.person.fullName(),
@@ -25,5 +27,3 @@ const createUser = async(numUsers)=>{
     res.json({success:false,message:error.message})
   }
 }
-
-export {createUser}
