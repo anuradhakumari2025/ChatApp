@@ -321,116 +321,136 @@ export const leaveGroup = async (req, res) => {
 
 export const sendAttachments = async (req, res) => {
   try {
-    const { chatId } = req.body; // Extract chatId from the request body
+    // Extract chatId from the request body
+    const { chatId } = req.body;
 
-    // Fetch chat details and current user details simultaneously
+    // Fetch chat details and current user details (name only) in parallel
     const [chat, me] = await Promise.all([
-      Chat.findById(chatId),
-      User.findById(req.userId, "name"),
+      Chat.findById(chatId), // Get the chat by ID
+      User.findById(req.userId, "name"), // Get the current user by ID, only fetching the name
     ]);
 
-    // If chat is not found, return error
+    // If the chat is not found, return an error response
     if (!chat) return res.json({ success: false, message: "Chat not found" });
 
-    const files = req.files || []; // Get uploaded files from the request (default to empty array if none)
+    // Retrieve files from the request (if any), or default to an empty array
+    const files = req.files || [];
 
-    // If no files provided, return error
+    // If no files were provided, return a 400 error response
     if (files.length < 1) {
       return res
         .status(400)
         .json({ success: false, message: "Please Provide attachments" });
     }
 
-    // upload files here (Note: Actual upload logic is assumed to be handled elsewhere or missing)
+    // Placeholder for file upload logic
+    // This is where you'd typically upload the files to a storage service like Cloudinary or AWS S3
+    const attachments = []; // Initialize an array to store uploaded attachment info (e.g., URLs)
 
-    const attachments = []; // Initialize empty attachments array
-
-    // Prepare message object to be stored in database
+    // Prepare the message object for database storage
     const messageForDB = {
-      content: "",
-      attachments,
-      sender: me._id,
-      chat: chatId,
+      content: "", // No text content since it's an attachment
+      attachments, // Array of uploaded attachment references
+      sender: me._id, // Sender ID
+      chat: chatId, // Chat ID
     };
 
-    // Prepare message object for real-time emission with sender's name included
+    // Prepare the message object for real-time use with the sender's name included
     const messageForRealTime = {
       ...messageForDB,
-      sender: { _id: me._id, name: me.name },
+      sender: { _id: me._id, name: me.name }, // Include sender name for the frontend
     };
 
-    // Create and save message in database
+    // Save the message with attachments to the database
     const message = await Message.create(messageForDB);
 
-    // Emit real-time event to all chat members about the new attachments
+    // Emit a real-time event to all chat members with the new attachment message
     emitEvent(req, NEW_ATTACHMENTS, chat.members, {
       message: messageForRealTime,
       chatId,
     });
 
-    // Emit another real-time event to alert about a new message
+    // Emit a separate alert event to notify users of a new message (used for notifications/badges)
     emitEvent(req, NEW_MESSAGE_ALERT, chat.members, {
       chatId,
     });
 
-    // Send success response with the created message
+    // Respond with the saved message object
     return res.status(200).json({ success: true, message });
   } catch (error) {
-    // Catch and log any errors, and send error response
+    // Log and return any errors that occur
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
 
+// Function to get chat details based on chat ID and optionally populate member details
 export const getChatDetails = async (req, res) => {
   try {
+    // Check if the 'populate' query parameter is set to "true"
     if (req.query.populate === "true") {
+      // Find the chat by ID and populate the 'members' field with only 'name' and 'avatar'
       const chat = await Chat.findById(req.params.id)
-        .populate("members", "name avatar")
-        .lean();
+        .populate("members", "name avatar") // Populate only selected fields
+        .lean(); // Convert Mongoose document to a plain JavaScript object
 
+      // If chat not found, send response with success: false
       if (!chat) return res.json({ success: false, message: "Chat not found" });
 
+      // Format the 'members' array to return avatar URL instead of full avatar object
       chat.members = chat.members.map(({ _id, name, avatar }) => ({
         _id,
         name,
-        avatar: avatar.url,
+        avatar: avatar.url, // Access nested avatar URL
       }));
 
+      // Send success response with chat data
       res.status(200).json({ success: true, chat });
     } else {
+      // If populate is not true, fetch the chat without populating member details
       const chat = await Chat.findById(req.params.id);
 
+      // If chat not found, send 404 response
       if (!chat)
         return res
           .status(404)
           .json({ success: false, message: "Chat not found" });
+
+      // Send success response with raw chat data
       res.status(200).json({ success: true, chat });
     }
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Handle unexpected errors
+    console.log(error); // Log error on server
+    res.json({ success: false, message: error.message }); // Send error response
   }
 };
-//3:19:17 -> testing
+
 
 export const renameGroup = async (req, res) => {
   try {
+    // Extract chat ID from route parameters
     const chatId = req.params.id;
+
+    // Extract new group name from request body
     const { name } = req.body;
 
+    // Find the chat by ID
     const chat = await Chat.findById(chatId);
 
+    // If chat not found, return 401 error
     if (!chat)
       return res
         .status(401)
         .json({ success: false, message: "Chat not found" });
 
+    // Check if the chat is a group chat
     if (!chat.groupChat)
       return res
         .status(402)
         .json({ success: false, message: "This is not a group chat" });
 
+    // Ensure only the group creator can rename the group
     if (chat.creator.toString() !== req.userId.toString()) {
       return res.status(403).json({
         success: false,
@@ -438,33 +458,41 @@ export const renameGroup = async (req, res) => {
       });
     }
 
+    // Update the group's name
     chat.name = name;
-    await chat.save();
+    await chat.save(); // Save the updated chat
 
+    // Emit an event to notify all group members to refetch their chat list
     emitEvent(req, REFETCH_CHATS, chat.members);
 
+    // Send success response
     res
       .status(200)
       .json({ success: true, message: "Group renamed successfully!" });
   } catch (error) {
+    // Log and return any error that occurs
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
-//3:23:00 -> testing
 
 export const deleteChat = async (req, res) => {
   try {
+    // Extract chat ID from request parameters
     const chatId = req.params.id;
 
+    // Find the chat in the database by ID
     const chat = await Chat.findById(chatId);
 
+    // If chat doesn't exist, return an error
     if (!chat)
       return res
         .status(401)
         .json({ success: false, message: "Chat not found" });
 
-    const members = chat.members;
+    const members = chat.members; // Store members for later use
+
+    // If it's a group chat, only the creator is allowed to delete it
     if (chat.groupChat && chat.creator.toString() !== req.userId.toString()) {
       return res.json({
         success: false,
@@ -472,6 +500,7 @@ export const deleteChat = async (req, res) => {
       });
     }
 
+    // If it's a one-to-one chat, only participants are allowed to delete it
     if (!chat.groupChat && !chat.members.includes(req.userId.toString())) {
       return res.json({
         success: false,
@@ -479,71 +508,80 @@ export const deleteChat = async (req, res) => {
       });
     }
 
+    // Find all messages in the chat that have attachments
     const messageWithAttachments = await Message.find({
       chat: chatId,
       attachments: { $exists: true, $ne: [] },
     });
 
-    const public_ids = [];
+    const public_ids = []; // Initialize an array to collect Cloudinary public IDs
 
+    // Loop through all attachments and collect their public IDs for deletion
     messageWithAttachments.forEach(({ attachments }) => {
       attachments.forEach(({ public_id }) => {
         public_ids.push(public_id);
       });
     });
 
+    // Perform all deletion operations in parallel:
     await Promise.all([
-      //delete files from Cloudinary
-      deleteFilesFromCloudinary(public_ids),
-      chat.deleteOne(),
-      Message.deleteMany({ chat: chatId }),
+      deleteFilesFromCloudinary(public_ids), // Delete files from Cloudinary
+      chat.deleteOne(), // Delete the chat from database
+      Message.deleteMany({ chat: chatId }), // Delete all messages from the chat
     ]);
 
+    // Emit an event to notify all members to refetch their chat list
     emitEvent(req, REFETCH_CHATS, members);
 
+    // Send success response
     res
       .status(200)
       .json({ success: true, message: "Chat deleted Successfully!" });
   } catch (error) {
+    // Log and return error if something goes wrong
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
-//3:33:10
 
 export const getMessages = async (req, res) => {
   try {
-    const chatId = req.params.id;
+    const chatId = req.params.id; // Extract chat ID from request parameters
+    const { page = 1 } = req.query; // Extract page number from query (default is 1)
 
+    // Find the chat to ensure it exists
     const chat = await Chat.findById(chatId);
 
+    // If chat is not found, return error
     if (!chat)
       return res
         .status(401)
         .json({ success: false, message: "Chat not found" });
 
-    const limit = 20;
+    const limit = 20; // Number of messages per page
+    const skip = (page - 1) * limit; // Calculate number of documents to skip for pagination
 
-    const skip = (page - 1) * limit;
-
+    // Fetch messages and total count of messages in parallel
     const [messages, totalMessagesCount] = await Promise.all([
-      Message.find({ chat: chatId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("sender", "name")
-        .lean(),
-      Message.countDocuments({ chat: chatId }),
+      Message.find({ chat: chatId }) // Find messages for the given chat
+        .sort({ createdAt: -1 }) // Sort messages from newest to oldest
+        .skip(skip) // Skip messages for pagination
+        .limit(limit) // Limit the number of messages returned
+        .populate("sender", "name") // Populate sender field with only the name
+        .lean(), // Convert Mongoose documents to plain JavaScript objects
+      Message.countDocuments({ chat: chatId }), // Get total message count for pagination
     ]);
 
-    const totalPages = Math.ceil(totalMessagesCount / limit);
+    const totalPages = Math.ceil(totalMessagesCount / limit); // Calculate total number of pages
 
+    // Return messages (reversed to show oldest first), along with total pages info
     res
       .status(200)
       .json({ success: true, messages: messages.reverse(), totalPages });
   } catch (error) {
+    // Handle and log any unexpected errors
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
-//3:41:00
+
