@@ -7,6 +7,7 @@ import chatRouter from "./routes/Chat.route.js";
 import { createUser } from "./seeders/UserSeeder.js";
 import { createMessages, createMessagesInAChat } from "./seeders/MessageSeeder.js";
 import { createGroupChats, createSingleChats } from "./seeders/ChatSeeder.js";
+import adminRouter from "./routes/Admin.route.js";
 dotenv.config();
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 });
 app.use("/user",userRouter)
 app.use("/chat",chatRouter)
+app.use("/admin",adminRouter)
 
 app.listen(port, () => {
   console.log(`App is listening at port ${port}`);

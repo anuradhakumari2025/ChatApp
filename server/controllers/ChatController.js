@@ -15,14 +15,6 @@ export const newGroupChat = async (req, res) => {
   try {
     const { name, members } = req.body; // Destructure group name and members from request body
 
-    // Check if at least 2 members are provided (excluding the creator)
-    if (members.length < 2) {
-      return res.json({
-        success: false,
-        message: "Group chat must have atleast 3 members!",
-      });
-    }
-
     const allMembers = [...members, req.userId]; // Add the current user (creator) to the members list
 
     // Create a new group chat in the database
@@ -137,11 +129,6 @@ export const addMembers = async (req, res) => {
     // If the chat is not a group chat, send error response
     if (!chat.groupChat)
       return res.json({ success: false, message: "This is not a group chat" });
-
-    // If no members provided, send error response
-    if (!members || members.length < 1) {
-      return res.json({ success: false, message: "Please Provide Members" });
-    }
 
     // Only the group creator is allowed to add new members
     if (chat.creator.toString() !== req.userId.toString())
@@ -273,7 +260,7 @@ export const leaveGroup = async (req, res) => {
     if (!chat.groupChat)
       return res.json({ success: false, message: "This is not a group chat" });
 
-    console.log("chat creator before leaving group", chat.creator);
+    // console.log("chat creator before leaving group", chat.creator);
 
     // Remove the current user from the members list
     const remainingMembers = chat.members.filter(
@@ -293,7 +280,7 @@ export const leaveGroup = async (req, res) => {
       const randomElem = Math.floor(Math.random() * remainingMembers.length);
       const newCreator = remainingMembers[randomElem];
       chat.creator = newCreator;
-      console.log("chat creator after leaving group", chat.creator);
+      // console.log("chat creator after leaving group", chat.creator);
     }
 
     // Update the members list by removing the current user
