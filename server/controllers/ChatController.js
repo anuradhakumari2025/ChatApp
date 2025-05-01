@@ -311,6 +311,17 @@ export const sendAttachments = async (req, res) => {
     // Extract chatId from the request body
     const { chatId } = req.body;
 
+     // Retrieve files from the request (if any), or default to an empty array
+     const files = req.files || [];
+
+     if(files.length < 1){
+      return res.status(400).json({ success: false, message: "Please Provide attachments" });
+     }
+
+     if(files.length > 5){
+      return res.status(400).json({ success: false, message: "Attachments can't be more than 5" });
+     }
+
     // Fetch chat details and current user details (name only) in parallel
     const [chat, me] = await Promise.all([
       Chat.findById(chatId), // Get the chat by ID
@@ -320,8 +331,7 @@ export const sendAttachments = async (req, res) => {
     // If the chat is not found, return an error response
     if (!chat) return res.json({ success: false, message: "Chat not found" });
 
-    // Retrieve files from the request (if any), or default to an empty array
-    const files = req.files || [];
+   
 
     // If no files were provided, return a 400 error response
     if (files.length < 1) {

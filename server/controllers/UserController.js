@@ -13,6 +13,13 @@ export const register = async (req, res) => {
     // Destructure user data from the request body
     const { name, bio, username, password } = req.body;
 
+    const file = req.file; // Get the uploaded file from the request
+    if (!file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Please upload an avatar" });
+    }
+
     // Placeholder avatar object (replace with actual Cloudinary upload later)
     const avatar = {
       public_id: "odhflk", // Public ID for the image
@@ -31,17 +38,23 @@ export const register = async (req, res) => {
     // Send token to client and respond with success message
     sendToken(res, newUser, 201, "User created successfully!");
   } catch (error) {
-    // Log error in console for debugging
-    console.log(error);
-
     // Send error response to client
-    res.json({
-      success: false,
-      message: error.message,
-    });
+    if (error.code === 11000) {
+      const err = Object.keys(error.keyPattern).join(", ");
+      error.message = `Duplicate field - ${err}`;
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      console.log(error);
+      res.json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 };
-
 
 // Login existing user and send token if credentials are valid
 export const login = async (req, res) => {
@@ -76,7 +89,6 @@ export const login = async (req, res) => {
   }
 };
 
-
 export const getMyProfile = async (req, res) => {
   try {
     const userId = req.userId; // Get userId from the authenticated user
@@ -90,7 +102,6 @@ export const getMyProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
 
 export const logout = async (req, res) => {
   try {
@@ -106,7 +117,6 @@ export const logout = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
 
 // Controller function to search users excluding those already in chat with current user
 export const searchUser = async (req, res) => {
@@ -147,7 +157,6 @@ export const searchUser = async (req, res) => {
   }
 };
 
-
 // Controller function to handle sending a friend request
 export const sendFriendRequest = async (req, res) => {
   try {
@@ -185,7 +194,6 @@ export const sendFriendRequest = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
 
 // Controller function to accept or reject a friend request
 export const acceptFriendRequest = async (req, res) => {
@@ -330,4 +338,3 @@ export const getMyFriends = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-

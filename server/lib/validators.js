@@ -5,7 +5,6 @@ export const registerValidator = ()=>[
   body("username","Please enter username").notEmpty(),
   body("password","Please enter password").notEmpty(),
   body("bio","Please enter bio").notEmpty(),
-  check("avatar","Please upload avatar").notEmpty()
 ]
 
 export const loginValidator = ()=>[
@@ -29,7 +28,6 @@ export const removeMemberValidator = ()=>[
  
 export const sendAttachmentValidator = ()=>[
   body("chatId","Please enter Chat ID").notEmpty(),
-  check("files").notEmpty().withMessage("Please Upload Attachments").isArray({min:1,max:5}).withMessage("Attachments must be 1-5"),
 ]
 
 export const chatIdValidator = ()=>[
@@ -48,6 +46,10 @@ export const sendRequestValidator = ()=>[
 export const acceptRequestValidator = ()=>[
   body("requestId","Please enter Request ID").notEmpty(),
   body('accept').notEmpty().withMessage("Please enter accept").isBoolean().withMessage("Accept must be boolean"),
+]
+
+export const adminLoginValidator = () =>[
+  body("secretKey","Please enter secret Key").notEmpty(),
 ]
 
 export const validateHandler = (req,res,next) =>{
