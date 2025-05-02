@@ -12,6 +12,8 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000
+const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
+
 
 //Middleware
 app.use(express.json())
@@ -33,5 +35,7 @@ app.use("/chat",chatRouter)
 app.use("/admin",adminRouter)
 
 app.listen(port, () => {
-  console.log(`App is listening at port ${port}`);
+  console.log(`App is listening at port ${port} in ${envMode} mode`);
 });
+
+export {envMode}

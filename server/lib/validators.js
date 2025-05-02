@@ -1,4 +1,4 @@
-import {body,check,param,query,validationResult} from 'express-validator'
+import {body,check,param,validationResult} from 'express-validator'
 
 export const registerValidator = ()=>[
   body("name","Please enter name").notEmpty(),

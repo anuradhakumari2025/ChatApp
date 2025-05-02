@@ -10,6 +10,7 @@ import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import emitEvent from "../utils/EmitEvent.js";
+import { handleError } from "../utils/ErrorHandler.js";
 
 export const newGroupChat = async (req, res) => {
   try {
@@ -34,8 +35,9 @@ export const newGroupChat = async (req, res) => {
     // Return success response
     return res.status(201).json({ success: true, message: "Group Created" });
   } catch (error) {
-    console.log(error); // Log any server-side error
-    res.json({ message: error.message, success: false }); // Send error response
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -79,9 +81,9 @@ export const getMyChats = async (req, res) => {
     // Send transformed chat list as response
     return res.status(201).json({ success: true, chats: transformedChats });
   } catch (error) {
-    // Log and respond with error message if any exception occurs
-    console.log(error);
-    res.json({ message: error.message, success: false });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -110,9 +112,9 @@ export const getMyGroups = async (req, res) => {
     // Send transformed chat list as response
     return res.status(201).json({ success: true, groups });
   } catch (error) {
-    // Log and respond with error message if any exception occurs
-    console.log(error);
-    res.json({ message: error.message, success: false });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -179,9 +181,9 @@ export const addMembers = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Members added successfully" });
   } catch (error) {
-    // Log and respond with error message if any exception occurs
-    console.log(error);
-    res.json({ message: error.message, success: false });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -241,9 +243,9 @@ export const removeMembers = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Member removed successfully" });
   } catch (error) {
-    // Log any caught errors and send error response
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -300,9 +302,9 @@ export const leaveGroup = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Member removed successfully" });
   } catch (error) {
-    // Handle and log any errors
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -311,16 +313,20 @@ export const sendAttachments = async (req, res) => {
     // Extract chatId from the request body
     const { chatId } = req.body;
 
-     // Retrieve files from the request (if any), or default to an empty array
-     const files = req.files || [];
+    // Retrieve files from the request (if any), or default to an empty array
+    const files = req.files || [];
 
-     if(files.length < 1){
-      return res.status(400).json({ success: false, message: "Please Provide attachments" });
-     }
+    if (files.length < 1) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Please Provide attachments" });
+    }
 
-     if(files.length > 5){
-      return res.status(400).json({ success: false, message: "Attachments can't be more than 5" });
-     }
+    if (files.length > 5) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Attachments can't be more than 5" });
+    }
 
     // Fetch chat details and current user details (name only) in parallel
     const [chat, me] = await Promise.all([
@@ -330,8 +336,6 @@ export const sendAttachments = async (req, res) => {
 
     // If the chat is not found, return an error response
     if (!chat) return res.json({ success: false, message: "Chat not found" });
-
-   
 
     // If no files were provided, return a 400 error response
     if (files.length < 1) {
@@ -375,9 +379,9 @@ export const sendAttachments = async (req, res) => {
     // Respond with the saved message object
     return res.status(200).json({ success: true, message });
   } catch (error) {
-    // Log and return any errors that occur
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -417,12 +421,11 @@ export const getChatDetails = async (req, res) => {
       res.status(200).json({ success: true, chat });
     }
   } catch (error) {
-    // Handle unexpected errors
-    console.log(error); // Log error on server
-    res.json({ success: false, message: error.message }); // Send error response
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
-
 
 export const renameGroup = async (req, res) => {
   try {
@@ -467,9 +470,9 @@ export const renameGroup = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Group renamed successfully!" });
   } catch (error) {
-    // Log and return any error that occurs
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -535,9 +538,9 @@ export const deleteChat = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Chat deleted Successfully!" });
   } catch (error) {
-    // Log and return error if something goes wrong
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -576,9 +579,8 @@ export const getMessages = async (req, res) => {
       .status(200)
       .json({ success: true, messages: messages.reverse(), totalPages });
   } catch (error) {
-    // Handle and log any unexpected errors
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    // Send error response to client
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
-

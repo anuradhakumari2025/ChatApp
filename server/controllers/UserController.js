@@ -6,6 +6,7 @@ import Request from "../models/Request.js";
 import emitEvent from "../utils/EmitEvent.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/Events.js";
 import { getOtherMembers } from "../lib/Helper.js";
+import { handleError } from "../utils/ErrorHandler.js";
 
 // Create a new user and save it in the database and cookie
 export const register = async (req, res) => {
@@ -14,6 +15,7 @@ export const register = async (req, res) => {
     const { name, bio, username, password } = req.body;
 
     const file = req.file; // Get the uploaded file from the request
+    
     if (!file) {
       return res
         .status(400)
@@ -39,20 +41,8 @@ export const register = async (req, res) => {
     sendToken(res, newUser, 201, "User created successfully!");
   } catch (error) {
     // Send error response to client
-    if (error.code === 11000) {
-      const err = Object.keys(error.keyPattern).join(", ");
-      error.message = `Duplicate field - ${err}`;
-      return res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    } else {
-      console.log(error);
-      res.json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const { statusCode, message } = handleError(error);
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -81,11 +71,9 @@ export const login = async (req, res) => {
     // If credentials are valid, send a token and welcome message
     sendToken(res, user, 200, `Welcome back ${user.name}`);
   } catch (error) {
-    // Log any error that occurs during the process
-    console.log(error);
-
-    // Return error response to the client
-    res.json({ success: false, message: error.message });
+   // Send error response to client
+   const { statusCode, message } = handleError(error);
+   res.status(statusCode).json({ success: false, message });
   }
 };
 
