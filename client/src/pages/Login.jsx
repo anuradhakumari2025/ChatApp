@@ -12,6 +12,11 @@ import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../components/styles/StyledComponents";
 import { usernameValidator } from "../utils/validator";
 import { bgGradient } from "../constants/color";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { userExists, userNotExists } from "../redux/reducers/auth";
+import { server } from "../constants/config";
 
 // Login Component - Handles both Login & Signup forms in a single UI
 const Login = () => {
@@ -23,14 +28,64 @@ const Login = () => {
   const username = useInputValidation("", usernameValidator);
   const password = useStrongPassword();
   const avatar = useFileHandler("single"); // For profile image
+  const dispatch = useDispatch()
 
   // Submit Handlers
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true, 
+      };
+      const { data } = await axios.post(`${server}/api/v1/user/login`, {
+        username: username.value,
+        password: password.value,
+      },config);
+      console.log("User from response:", data);
+      if (data.success) {
+        dispatch(userExists(data.user)); // Or whatever user info is in response
+        toast.success(data.message);
+      }else {
+        dispatch(userNotExists());
+        toast.error(data.message || "Login failed!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong!");
+    }
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async(e) => {
     e.preventDefault();
+    try {
+      const formData = new FormData()
+      formData.append("avatar",avatar.file)
+      formData.append("name",name.value)
+      formData.append("username",username.value)
+      formData.append("password",password.value)
+      formData.append("bio",bio.value)
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      };
+      const {data} = await axios.post(`${server}/api/v1/user/register`,formData,config)
+      console.log("User from response:", data);
+      if (data.success) {
+        dispatch(userExists(true)); 
+        toast.success(data.message);
+      }else {
+        dispatch(userNotExists());
+        toast.error(data.message || "SignUp failed!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong!");
+    }
   };
 
   return (

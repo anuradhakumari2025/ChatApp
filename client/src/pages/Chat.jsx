@@ -91,4 +91,4 @@ const Chat = () => {
 };
 
 
-export default AppLayout()(Chat);
+export default AppLayout(Chat);

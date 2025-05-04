@@ -6,8 +6,10 @@ import {
   CalendarMonth as CalendarIcon,
 } from "@mui/icons-material";
 import moment from "moment";
+import { transformImage } from "../../lib/feature";
 
-const Profile = () => {
+const Profile = ({user}) => {
+  console.log(user, "Profile");
   return (
     <Stack
       spacing={"0.8rem"}
@@ -16,6 +18,7 @@ const Profile = () => {
       alignItems={"center"}
     >
       <Avatar
+      src={transformImage(user?.avatar?.url)}
         sx={{
           width: 150,
           height: 150,
@@ -24,12 +27,12 @@ const Profile = () => {
           border: "5px solid white",
         }}
       />
-      <ProfileCard heading={"Bio"} text={"GOod girl"} />
-      <ProfileCard heading={"Username"} text={"Anu"} Icon={<UserNameIcon />} />
-      <ProfileCard heading={"Name"} text={"Cute"} Icon={<FaceIcon />} />
+      <ProfileCard heading={"Bio"} text={user?.bio} />
+      <ProfileCard heading={"Username"} text={user?.username} Icon={<UserNameIcon />} />
+      <ProfileCard heading={"Name"} text={user?.name} Icon={<FaceIcon />} />
       <ProfileCard
         heading={"Joined"}
-        text={moment("2025-04-03T18:30:00.000Z").fromNow()}
+        text={moment(user?.createdAt).fromNow()}
         Icon={<CalendarIcon />}
       />
     </Stack>

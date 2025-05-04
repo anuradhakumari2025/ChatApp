@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Backdrop,
@@ -7,7 +8,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import {
   Search as SearchIcon,
   Add as AddIcon,
@@ -15,40 +15,64 @@ import {
   Logout as LogoutIcon,
   Notifications as NotificationIcon,
 } from "@mui/icons-material";
-import React, { Suspense, useState,lazy } from "react";
+import React, { Suspense, useState, lazy, use } from "react";
 import { orange } from "../../constants/color";
+import axios from "axios";
+import { server } from "../../constants/config.js";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { userNotExists } from "../../redux/reducers/auth";
+import { setIsNotification, setIsSearch } from "../../redux/reducers/miscellaneous.js";
+
 const Search = lazy(() => import("../specific/Search"));
 const Notification = lazy(() => import("../specific/Notification"));
 const NewGroup = lazy(() => import("../specific/NewGroup"));
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isSearch, setIsSearch] = useState(false);
+
+  const { isSearch,isNotification } = useSelector((state) => state.miscellaneous);
+
   const [isNewGroup, setIsNewGroup] = useState(false);
-  const [isNotification, setIsNotification] = useState(false);
+
+  const dispatch = useDispatch();
+
   const openSearchDialog = () => {
-    setIsSearch((prev) => !prev);
+    dispatch(setIsSearch(true));
   };
   const openNewGroup = () => {
     setIsNewGroup((prev) => !prev);
-    // console.log("hello new group");
   };
   const manageGroup = () => {
     console.log("manage group");
     navigate("/groups");
   };
-  const notification = () => {
-    setIsNotification((prev) => !prev);
+  const openNotification = () => {
+    dispatch(setIsNotification(true));
   };
-  const logout = () => {
+  const logout = async () => {
     console.log("logout");
+    try {
+      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
+      if (data.success) {
+        dispatch(userNotExists());
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong!");
+    }
   };
 
   const tooltip = [
     { title: "Search", fun: openSearchDialog, icon: <SearchIcon /> },
     { title: "New Group", fun: openNewGroup, icon: <AddIcon /> },
     { title: "Manage Group", fun: manageGroup, icon: <GroupIcon /> },
-    { title: "Notification", fun: notification, icon: <NotificationIcon /> },
+    { title: "Notification", fun: openNotification, icon: <NotificationIcon /> },
     {
       title: "Logout",
       fun: logout,

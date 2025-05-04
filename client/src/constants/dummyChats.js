@@ -7,12 +7,13 @@ export const dummyChat = [
     members: ["1", "2", "3"],
   },
   {
-    avatar: ["/aniket.png"],
-    name: "Aniket",
-    _id: "2",
+    avatar: ["/pallavi.png"],
+    name: "Pallavi",
+    _id: "5",
     groupChat: false,
     members: ["1", "2", "3"],
   },
+  
   {
     avatar: ["/ojas.png"],
     name: "Ojas",
@@ -28,9 +29,9 @@ export const dummyChat = [
     members: ["1", "2", "3"],
   },
   {
-    avatar: ["/pallavi.png"],
-    name: "Pallavi",
-    _id: "5",
+    avatar: ["/aniket.png"],
+    name: "Aniket",
+    _id: "2",
     groupChat: false,
     members: ["1", "2", "3"],
   },

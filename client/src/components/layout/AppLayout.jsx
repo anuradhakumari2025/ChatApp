@@ -1,19 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "./Header";
 import Title from "../shared/Title";
 import ChatList from "../specific/ChatList";
-import { dummyChat } from "../../constants/dummyChats.js";
 import { useParams } from "react-router-dom";
 import Profile from "../specific/Profile.jsx";
+import { useMyChatsQuery } from "../../redux/api/api.js";
+import { Skeleton } from "@mui/material";
+import { useSelector } from "react-redux";
+import { useErrors } from "../../hooks/hook.jsx";
 
-const AppLayout = () => (WrappedComponent) => {
+const AppLayout =  (WrappedComponent) => {
   return (props) => {
-    const params = useParams()
-    const chatId = params.chatId
-    const handleDeleteChat=(e,_id,groupChat)=>{
+    const params = useParams();
+    const chatId = params.chatId;
+
+    const { isMobile } = useSelector((state) => state.miscellaneous);
+    const {user} = useSelector((state) => state.auth);
+    
+    const { isLoading, data, isError, error, refetch } = useMyChatsQuery("");
+
+    useErrors([{ isError, error }]);
+
+    const handleDeleteChat = (e, _id, groupChat) => {
       e.preventDefault();
-      console.log(_id,groupChat,"Delete Chat")
-    }
+      console.log(_id, groupChat, "Delete Chat");
+    };
     return (
       <>
         <Title />
@@ -34,11 +45,15 @@ const AppLayout = () => (WrappedComponent) => {
               height: "calc(100vh - 4rem)",
             }}
           >
-            <ChatList
-              chats={dummyChat}
-              chatId={chatId}
-              handleDeleteChat={handleDeleteChat}
-            />
+            {isLoading ? (
+              <Skeleton />
+            ) : (
+              <ChatList
+                chats={data?.chats}
+                chatId={chatId}
+                handleDeleteChat={handleDeleteChat}
+              />
+            )}
           </div>
 
           {/* Middle Part */}
@@ -58,7 +73,7 @@ const AppLayout = () => (WrappedComponent) => {
               height: "calc(100vh - 4rem)",
             }}
           >
-           <Profile/> 
+            <Profile user={user} />
           </div>
         </div>
       </>

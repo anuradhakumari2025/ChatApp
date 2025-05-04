@@ -7,6 +7,7 @@ import emitEvent from "../utils/EmitEvent.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/Events.js";
 import { getOtherMembers } from "../lib/Helper.js";
 import { handleError } from "../utils/ErrorHandler.js";
+import { uploadFilesToCloudinary } from "../utils/Cloudinary.js";
 
 // Create a new user and save it in the database and cookie
 export const register = async (req, res) => {
@@ -22,10 +23,12 @@ export const register = async (req, res) => {
         .json({ success: false, message: "Please upload an avatar" });
     }
 
-    // Placeholder avatar object (replace with actual Cloudinary upload later)
+    const result =await uploadFilesToCloudinary([file])
+
+    // Placeholder avatar object
     const avatar = {
-      public_id: "odhflk", // Public ID for the image
-      url: "kdoilk", // URL for the image
+      public_id: result[0].public_id, // Public ID for the image
+      url: result[0].url, // URL for the image
     };
 
     // Create a new user in the database

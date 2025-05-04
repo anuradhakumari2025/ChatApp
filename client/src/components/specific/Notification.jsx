@@ -6,27 +6,48 @@ import {
   Typography,
   ListItem,
   Button,
+  Skeleton,
 } from "@mui/material";
 import React, { memo } from "react";
 import { sampleNotifications } from "../../constants/dummyChats";
+import { useGetNotificationsQuery } from "../../redux/api/api";
+import { useErrors } from "../../hooks/hook";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsNotification } from "../../redux/reducers/miscellaneous";
 
 const Notification = () => {
+  const dispatch = useDispatch();
+  const {isNotification} = useSelector((state) => state.miscellaneous);
+
+  const { data, isLoading, error, isError } = useGetNotificationsQuery();
+
   const friendRequestHandler = ({ _id, accept }) => {};
+
+  useErrors([{ error, isError }]);
+  const handleClose = () => {
+    dispatch(setIsNotification(false));
+  };
   return (
-    <Dialog open>
-      <Stack p={{ xs: "1rem", sm: "2rem" }} maxWidth={"25rem"}>
+    <Dialog open={isNotification} onClose={handleClose}>
+      <Stack p={{ xs: "1rem", sm: "1rem" }} maxWidth={"25rem"}>
         <DialogTitle>Notification</DialogTitle>
-        {sampleNotifications?.length > 0 ? (
-          sampleNotifications.map(({ sender, _id }) => (
-            <NotificationItem
-              sender={sender}
-              _id={_id}
-              key={_id}
-              handler={friendRequestHandler}
-            />
-          ))
+        {isLoading ? (
+          <Skeleton />
         ) : (
-          <Typography textAlign={"center"}>No Notifications</Typography>
+          <>
+            {data?.allRequests?.length > 0 ? (
+              data?.allRequests?.map(({ sender, _id }) => (
+                <NotificationItem
+                  sender={sender}
+                  _id={_id}
+                  key={_id}
+                  handler={friendRequestHandler}
+                />
+              ))
+            ) : (
+              <Typography textAlign={"center"}>No Notifications</Typography>
+            )}
+          </>
         )}
       </Stack>
     </Dialog>

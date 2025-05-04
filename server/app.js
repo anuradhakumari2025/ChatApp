@@ -12,6 +12,8 @@ import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/Helper.js";
 import { NEW_MESSAGE_ALERT } from "./constants/Events.js";
 import Message from "./models/Message.js";
+import cors from "cors";
+import cloudinary from "./configs/cloudinary.js";
 
 dotenv.config();
 
@@ -27,15 +29,22 @@ const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 //Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: ["http://localhost:5173","http://localhost:4173",process.env.CLIENT_URL],
+  credentials: true,
+
+
+}))
 
 await connectDB();
+// console.log("Cloudinary connected successfully", cloudinary);
 
 app.get("/", (req, res) => {
   res.send("Good Day!");
 });
-app.use("/user", userRouter);
-app.use("/chat", chatRouter);
-app.use("/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/chat", chatRouter);
+app.use("/api/v1/admin", adminRouter);
 
 io.on("connection", (socket) => {
   const user = {
