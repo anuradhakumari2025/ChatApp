@@ -10,18 +10,37 @@ import {
 } from "@mui/material";
 import React, { memo } from "react";
 import { sampleNotifications } from "../../constants/dummyChats";
-import { useGetNotificationsQuery } from "../../redux/api/api";
+import {
+  useAcceptFriendRequestMutation,
+  useGetNotificationsQuery,
+} from "../../redux/api/api";
 import { useErrors } from "../../hooks/hook";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsNotification } from "../../redux/reducers/miscellaneous";
+import toast from "react-hot-toast";
 
 const Notification = () => {
   const dispatch = useDispatch();
-  const {isNotification} = useSelector((state) => state.miscellaneous);
+  const { isNotification } = useSelector((state) => state.miscellaneous);
+  const [acceptRequest] = useAcceptFriendRequestMutation();
 
   const { data, isLoading, error, isError } = useGetNotificationsQuery();
 
-  const friendRequestHandler = ({ _id, accept }) => {};
+  const friendRequestHandler = async ({ _id, accept }) => {
+    try {
+      dispatch(setIsNotification(false));
+      const res = await acceptRequest({ requestId: _id, accept });
+      if (res.data?.success) {
+        console.log("Use socket here");
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
 
   useErrors([{ error, isError }]);
   const handleClose = () => {

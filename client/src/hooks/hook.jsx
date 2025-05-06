@@ -44,4 +44,27 @@ const useAsyncMutation = (mutationHook) => {
   return [executeMutation, isLoading, data];
 };
 
-export { useErrors, useAsyncMutation };
+const useSocketEvents = (socket, handlers) => {
+  useEffect(() => {
+    if (!socket) {
+      console.warn("Socket not initialized");
+      return;
+    }
+
+    // console.log("Attaching socket event listeners:", Object.keys(handlers));
+    Object.entries(handlers).forEach(([event, handler]) => {
+      // console.log(`Attaching listener for event: ${event}`);
+      socket.on(event, handler);
+    });
+
+    return () => {
+      // console.log("Cleaning up socket event listeners");
+      Object.entries(handlers).forEach(([event, handler]) => {
+        // console.log(`Removing listener for event: ${event}`);
+        socket.off(event, handler);
+      });
+    };
+  }, [socket, handlers]);
+};
+
+export { useErrors, useAsyncMutation, useSocketEvents };

@@ -8,15 +8,20 @@ import { useMyChatsQuery } from "../../redux/api/api.js";
 import { Skeleton } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useErrors } from "../../hooks/hook.jsx";
+import { getSocket } from "../../socket.jsx";
 
 const AppLayout =  (WrappedComponent) => {
   return (props) => {
     const params = useParams();
     const chatId = params.chatId;
 
+    const socket = getSocket()
+    // console.log(socket, "Socket in AppLayout")✅
+
     const { isMobile } = useSelector((state) => state.miscellaneous);
     const {user} = useSelector((state) => state.auth);
-    
+    // console.log("Logged in user in frontend:", user);
+
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery("");
 
     useErrors([{ isError, error }]);
@@ -52,6 +57,7 @@ const AppLayout =  (WrappedComponent) => {
                 chats={data?.chats}
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
+                
               />
             )}
           </div>
@@ -63,7 +69,7 @@ const AppLayout =  (WrappedComponent) => {
               height: "calc(100vh - 4rem)",
             }}
           >
-            <WrappedComponent {...props} />
+            <WrappedComponent {...props} chatId={chatId} user={user}/>
           </div>
 
           {/* Right Side */}

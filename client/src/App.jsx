@@ -7,6 +7,7 @@ import { server } from "./constants/config.js";
 import { useDispatch, useSelector } from "react-redux";
 import { userExists, userNotExists } from "./redux/reducers/auth.js";
 import {Toaster} from "react-hot-toast";
+import { SocketProvider } from "./socket.jsx";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -30,7 +31,7 @@ const App = () => {
       .get(`${server}/api/v1/user/profile`,{withCredentials:true})
       .then(({data}) => {
         dispatch(userExists(data.user))
-        console.log("Api response" ,data);
+        // console.log("Api response" ,data);
       })
       .catch((error) => {
         console.log(error);
@@ -43,7 +44,9 @@ const App = () => {
     <BrowserRouter>
       <Suspense fallback={<LayoutLoaders />}>
         <Routes>
-          <Route element={<ProtectRoute user={user} />}>
+          <Route element={<SocketProvider>
+            <ProtectRoute user={user} />
+          </SocketProvider>}>
             <Route path="/" element={<Home />} />
             <Route path="/chat/:chatId" element={<Chat />} />
             <Route path="/groups" element={<Groups />} />

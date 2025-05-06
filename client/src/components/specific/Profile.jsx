@@ -9,7 +9,6 @@ import moment from "moment";
 import { transformImage } from "../../lib/feature";
 
 const Profile = ({user}) => {
-  console.log(user, "Profile");
   return (
     <Stack
       spacing={"0.8rem"}

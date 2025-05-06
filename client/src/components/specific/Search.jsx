@@ -25,7 +25,6 @@ const Search = () => {
 
   const [searchUser] = useLazySearchUserQuery();
   const [sendFriendRequest,isLoading] = useAsyncMutation(useSendFriendRequestMutation);
-  const [acceptRequest] = useAcceptFriendRequestMutation()
 
   const dispatch = useDispatch();
 
